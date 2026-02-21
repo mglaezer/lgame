@@ -221,7 +221,6 @@ if (typeof document !== "undefined") {
     const isDragging = game.phase === "placeL" && !game.pendingL && game.selectedCells.length > 0;
     const showHumanL = game.pendingL || !isDragging;
     const humanLCells = game.pendingL || game.humanL;
-    const humanLFaded = game.phase === "placeL" && !game.pendingL;
     if (showHumanL) {
       for (const [c, r] of humanLCells) {
         const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
@@ -231,7 +230,6 @@ if (typeof document !== "undefined") {
         rect.setAttribute("height", CELL - 4);
         rect.setAttribute("fill", "#e74c3c");
         rect.setAttribute("rx", "4");
-        if (humanLFaded) rect.classList.add("human-l-fading");
         svg.appendChild(rect);
       }
     }
@@ -255,7 +253,7 @@ if (typeof document !== "undefined") {
         rect.setAttribute("y", r * CELL + 2);
         rect.setAttribute("width", CELL - 4);
         rect.setAttribute("height", CELL - 4);
-        rect.setAttribute("fill", "rgba(231, 76, 60, 0.4)");
+        rect.setAttribute("fill", "#e74c3c");
         rect.setAttribute("rx", "4");
         svg.appendChild(rect);
       }
