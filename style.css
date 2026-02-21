@@ -16,45 +16,49 @@ body {
 }
 
 h1 {
-  font-size: 22px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  color: #333;
-  margin-bottom: 16px;
+  font-size: 36px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: #222;
+  margin-bottom: 12px;
 }
 
 #score {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 16px;
-  margin-bottom: 16px;
+  gap: 20px;
+  margin-bottom: 20px;
 }
 
 .score-side {
   display: flex;
   align-items: baseline;
-  gap: 8px;
+  gap: 10px;
 }
 
 .score-label {
-  font-size: 14px;
+  font-size: 16px;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: #888;
+  letter-spacing: 1px;
 }
 
+.score-human .score-label { color: #e74c3c; }
+.score-bot .score-label { color: #3498db; }
+
 .score-value {
-  font-size: 28px;
-  font-weight: 700;
+  font-size: 40px;
+  font-weight: 800;
 }
 
 .score-human .score-value { color: #e74c3c; }
 .score-bot .score-value { color: #3498db; }
 
 .score-divider {
-  font-size: 20px;
-  color: #bbb;
+  font-size: 28px;
+  font-weight: 800;
+  color: #222;
 }
 
 #board {
@@ -71,12 +75,15 @@ h1 {
 #status {
   font-size: 15px;
   min-height: 40px;
+  max-width: 400px;
+  margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 12px 0;
+  margin-top: 8px;
+  margin-bottom: 12px;
   padding: 8px 16px;
-  border-radius: 6px;
+  border-radius: 0 0 6px 6px;
   background: #e8e8e8;
   color: #444;
   transition: background 0.2s, color 0.2s;

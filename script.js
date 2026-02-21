@@ -229,7 +229,7 @@ if (typeof document !== "undefined") {
         rect.setAttribute("y", r * CELL + 2);
         rect.setAttribute("width", CELL - 4);
         rect.setAttribute("height", CELL - 4);
-        rect.setAttribute("fill", humanLFaded ? "rgba(231, 76, 60, 0.5)" : "#e74c3c");
+        rect.setAttribute("fill", humanLFaded ? "rgba(231, 76, 60, 0.65)" : "#e74c3c");
         rect.setAttribute("rx", "4");
         svg.appendChild(rect);
       }
