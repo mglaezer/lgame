@@ -223,17 +223,24 @@ button:disabled {
   color: #ccc;
 }
 
+#bottom-row {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+}
+
 #wiki-link {
-  display: inline-block;
-  margin-top: 12px;
-  font-size: 13px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
   color: #999;
   text-decoration: none;
 }
 
 #wiki-link:hover {
   color: #555;
-  text-decoration: underline;
 }
 
 .bot-moved {
