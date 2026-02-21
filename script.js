@@ -502,7 +502,7 @@ if (typeof document !== "undefined") {
   }
 
   function weightedPick(candidates) {
-    const weights = candidates.map(c => touchesCorner(c.move.active) ? 1 : 2);
+    const weights = candidates.map(c => touchesCorner(c.move.active) ? 2 : 1);
     const total = weights.reduce((a, b) => a + b, 0);
     let r = Math.random() * total;
     for (let i = 0; i < candidates.length; i++) {
