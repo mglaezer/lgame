@@ -554,7 +554,7 @@ if (typeof document !== "undefined") {
     const losingMoves = scored.filter(s => s.score < 0);
 
     const pWin = { "distracted": 0.25, "intermediate": 0.50, "expert": 1, "world-class": 1 };
-    const pBlunder = { "distracted": 0.67, "intermediate": 0.30, "expert": 0.10, "world-class": 0 };
+    const pBlunder = { "distracted": 0.50, "intermediate": 0.30, "expert": 0.10, "world-class": 0 };
 
     let pool;
     if (winMoves.length > 0 && Math.random() < pWin[difficulty]) {
