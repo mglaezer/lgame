@@ -617,6 +617,13 @@ if (typeof document !== "undefined") {
     if (dragging) onPointerUp(e);
   });
 
+  document.addEventListener("keydown", (e) => {
+    if (e.code === "Space" && !doneBtn.disabled) {
+      e.preventDefault();
+      doneBtn.click();
+    }
+  });
+
   newGame();
 }
 

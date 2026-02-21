@@ -199,5 +199,5 @@ button:disabled {
 
 @keyframes fade-to-pale {
   0% { opacity: 1; }
-  100% { opacity: 0.65; }
+  100% { opacity: 0.4; }
 }
