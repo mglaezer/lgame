@@ -157,6 +157,19 @@ button:disabled {
   background: #219a52;
 }
 
+#difficulty-row {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+#difficulty-row label {
+  font-size: 13px;
+  color: #888;
+}
+
 #new-game-btn {
   padding: 8px 20px;
   font-size: 13px;
@@ -167,6 +180,21 @@ button:disabled {
 }
 
 #new-game-btn:hover {
+  background: #e8e8e8;
+  color: #555;
+}
+
+#difficulty {
+  padding: 8px 12px;
+  font-size: 13px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: transparent;
+  color: #888;
+  cursor: pointer;
+}
+
+#difficulty:hover {
   background: #e8e8e8;
   color: #555;
 }

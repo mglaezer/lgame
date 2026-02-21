@@ -146,6 +146,7 @@ if (typeof document !== "undefined") {
   const undoBtn = document.getElementById("undo-btn");
   const doneBtn = document.getElementById("done-btn");
   const newGameBtn = document.getElementById("new-game-btn");
+  const difficultyEl = document.getElementById("difficulty");
   const humanScoreEl = document.getElementById("human-score");
   const botScoreEl = document.getElementById("bot-score");
 
@@ -480,6 +481,14 @@ if (typeof document !== "undefined") {
 
   newGameBtn.addEventListener("click", newGame);
 
+  difficultyEl.addEventListener("change", () => {
+    score.human = 0;
+    score.bot = 0;
+    humanScoreEl.textContent = "0";
+    botScoreEl.textContent = "0";
+    newGame();
+  });
+
   // --- Bot AI ---
 
   function touchesCorner(lPiece) {
@@ -539,9 +548,24 @@ if (typeof document !== "undefined") {
       scored.push({ move: m, score: safe ? 0 : -100 + worstHumanDepth });
     }
 
-    const bestScore = Math.max(...scored.map(s => s.score));
-    const candidates = scored.filter(s => s.score === bestScore);
-    const bestMove = weightedPick(candidates).move;
+    const difficulty = difficultyEl.value;
+    const winMoves = scored.filter(s => s.score >= 1000);
+    const safeMoves = scored.filter(s => s.score >= 0 && s.score < 1000);
+    const losingMoves = scored.filter(s => s.score < 0);
+
+    const pWin = { "distracted": 0.25, "intermediate": 0.50, "expert": 1, "world-class": 1 };
+    const pBlunder = { "distracted": 0.25, "intermediate": 0.30, "expert": 0.10, "world-class": 0 };
+
+    let pool;
+    if (winMoves.length > 0 && Math.random() < pWin[difficulty]) {
+      pool = winMoves;
+    } else if (losingMoves.length > 0 && Math.random() < pBlunder[difficulty]) {
+      pool = losingMoves;
+    } else {
+      pool = safeMoves.length > 0 ? safeMoves : (winMoves.length > 0 ? winMoves : losingMoves);
+    }
+
+    const bestMove = weightedPick(pool).move;
 
     const oldNeutrals = game.neutrals;
     const newBotL = bestMove.active;
