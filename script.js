@@ -151,7 +151,7 @@ if (typeof document !== "undefined") {
   const botScoreEl = document.getElementById("bot-score");
 
   const INITIAL_HUMAN_L = sortCells([[1,0],[1,1],[1,2],[2,0]]);
-  const INITIAL_BOT_L = sortCells([[2,1],[2,2],[2,3],[3,3]]);
+  const INITIAL_BOT_L = sortCells([[2,1],[2,2],[2,3],[1,3]]);
   const INITIAL_NEUTRALS = sortCells([[3,0],[0,3]]);
 
   let game = {};
@@ -160,8 +160,8 @@ if (typeof document !== "undefined") {
   function newGame() {
     const humanFirst = Math.random() < 0.5;
     game = {
-      humanL: INITIAL_HUMAN_L,
-      botL: INITIAL_BOT_L,
+      humanL: humanFirst ? INITIAL_HUMAN_L : INITIAL_BOT_L,
+      botL: humanFirst ? INITIAL_BOT_L : INITIAL_HUMAN_L,
       neutrals: INITIAL_NEUTRALS,
       currentPlayer: humanFirst ? "human" : "bot",
       phase: humanFirst ? "placeL" : "botTurn",
