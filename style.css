@@ -6,7 +6,7 @@ body {
   display: flex;
   justify-content: center;
   min-height: 100vh;
-  padding: 24px 16px;
+  padding: 16px;
 }
 
 #container {
@@ -261,4 +261,24 @@ button:disabled {
 @keyframes fade-out {
   0% { opacity: 1; }
   100% { opacity: 0; }
+}
+
+@media (max-width: 500px) {
+  h1, #wiki-link {
+    display: none;
+  }
+
+  #score { margin-bottom: 6px; }
+  #difficulty-row { margin-bottom: 10px; }
+  #controls { margin-bottom: 10px; }
+
+  #board, #status {
+    width: min(100%, calc(100dvh - 300px));
+    max-width: none;
+  }
+
+  #board {
+    height: min(calc(100vw - 32px), calc(100dvh - 300px));
+    max-height: none;
+  }
 }
