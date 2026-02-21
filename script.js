@@ -275,17 +275,22 @@ if (typeof document !== "undefined") {
     }
   }
 
+  function setStatus(text, cls) {
+    statusEl.textContent = text;
+    statusEl.className = cls || "";
+  }
+
   function updateStatus() {
     if (game.phase === "gameOver") return;
     if (game.currentPlayer === "bot") {
-      statusEl.textContent = "Bot is thinking...";
+      setStatus("Bot is thinking\u2026", "bot-turn");
     } else if (game.phase === "placeL") {
-      statusEl.textContent = "Drag to place your L-piece";
+      setStatus("Drag to place your L-piece", "human-turn");
     } else if (game.phase === "moveNeutral") {
       if (game.selectedNeutralIndex !== null) {
-        statusEl.textContent = "Click an empty cell, or click Done";
+        setStatus("Click an empty cell, or click Done", "human-turn");
       } else {
-        statusEl.textContent = "Click a neutral piece to move it, or click Done";
+        setStatus("Move a neutral piece, or click Done", "human-turn");
       }
     }
   }
@@ -436,7 +441,7 @@ if (typeof document !== "undefined") {
     );
 
     if (!isLegal) {
-      statusEl.textContent = "Illegal move! Try again.";
+      setStatus("Illegal move! Try again.", "human-turn");
       return;
     }
 
@@ -455,7 +460,7 @@ if (typeof document !== "undefined") {
       game.phase = "gameOver";
       score.human++;
       humanScoreEl.textContent = score.human;
-      statusEl.textContent = "You win!";
+      setStatus("You win!", "win");
       render();
       return;
     }
@@ -477,7 +482,7 @@ if (typeof document !== "undefined") {
       game.phase = "gameOver";
       score.human++;
       humanScoreEl.textContent = score.human;
-      statusEl.textContent = "You win!";
+      setStatus("You win!", "win");
       render();
       return;
     }
@@ -486,6 +491,14 @@ if (typeof document !== "undefined") {
     let bestScore = -Infinity;
 
     for (const m of moves) {
+      const humanResponses = generateMoves(m.opponent, m.active, m.neutrals);
+
+      if (humanResponses.length === 0) {
+        bestMove = m;
+        bestScore = 10000;
+        break;
+      }
+
       const loss = isLosingPosition(m.opponent, m.active, m.neutrals);
       if (loss) {
         if (bestScore < 1000 - loss.movesLeft) {
@@ -495,7 +508,6 @@ if (typeof document !== "undefined") {
         continue;
       }
 
-      const humanResponses = generateMoves(m.opponent, m.active, m.neutrals);
       let safe = true;
       let worstHumanDepth = Infinity;
       for (const hr of humanResponses) {
@@ -529,7 +541,7 @@ if (typeof document !== "undefined") {
       game.phase = "gameOver";
       score.bot++;
       botScoreEl.textContent = score.bot;
-      statusEl.textContent = "Bot wins!";
+      setStatus("Bot wins!", "lose");
       render();
       return;
     }

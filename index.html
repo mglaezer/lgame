@@ -9,14 +9,24 @@
 <body>
   <div id="container">
     <h1>L Game</h1>
-    <div id="score">Human: <span id="human-score">0</span> &mdash; Bot: <span id="bot-score">0</span></div>
-    <div id="status">Loading...</div>
+    <div id="score">
+      <div class="score-side score-human">
+        <span class="score-label">You</span>
+        <span class="score-value" id="human-score">0</span>
+      </div>
+      <div class="score-divider">&ndash;</div>
+      <div class="score-side score-bot">
+        <span class="score-value" id="bot-score">0</span>
+        <span class="score-label">Bot</span>
+      </div>
+    </div>
     <svg id="board" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg"></svg>
+    <div id="status">Loading...</div>
     <div id="controls">
       <button id="undo-btn" disabled>Undo</button>
       <button id="done-btn" disabled>Done</button>
-      <button id="new-game-btn">New Game</button>
     </div>
+    <button id="new-game-btn">New Game</button>
   </div>
   <script src="script.js"></script>
 </body>

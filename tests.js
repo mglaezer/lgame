@@ -205,6 +205,58 @@ assert(allMovesLeadToOpponentWin, "every move from depth-2 lets opponent force d
 
 console.log("Moves from test position:", moves.length);
 
+// --- Bot must pick immediate win (regression: was scored 0 instead of instant win) ---
+// Position where bot can move L to trap human
+const trapHumanL = sortCells([[0,0],[0,1],[0,2],[1,0]]);
+const trapBotL = sortCells([[2,1],[2,2],[2,3],[3,3]]);
+const trapNeutrals = sortCells([[2,0],[3,1]]);
+const botMoves = generateMoves(trapBotL, trapHumanL, trapNeutrals);
+
+const winningMoves = botMoves.filter(m =>
+  generateMoves(m.opponent, m.active, m.neutrals).length === 0
+);
+assert(winningMoves.length > 0, "bot has at least one move that traps human");
+
+// The bug: isLosingPosition might not detect a trapping move, causing bot to score it 0.
+// Verify every trapping move IS detected by isLosingPosition (table completeness).
+for (const wm of winningMoves) {
+  const loss = isLosingPosition(wm.opponent, wm.active, wm.neutrals);
+  assert(loss !== null,
+    "isLosingPosition detects trapping move (table completeness)");
+  if (loss) assertEq(loss.movesLeft, 0, "trapping move has movesLeft=0");
+}
+
+// Simulate bot move selection: must pick a winning move, not a random safe one.
+// This is the core regression test — before the fix, winning moves could get score 0.
+let bestMove = null;
+let bestScore = -Infinity;
+for (const m of botMoves) {
+  const opponentResponses = generateMoves(m.opponent, m.active, m.neutrals);
+  if (opponentResponses.length === 0) {
+    bestMove = m;
+    bestScore = 10000;
+    break;
+  }
+  const loss = isLosingPosition(m.opponent, m.active, m.neutrals);
+  if (loss) {
+    if (bestScore < 1000 - loss.movesLeft) {
+      bestScore = 1000 - loss.movesLeft;
+      bestMove = m;
+    }
+    continue;
+  }
+  let moveScore = 0;
+  for (const hr of opponentResponses) {
+    const botLoss = isLosingPosition(hr.opponent, hr.active, hr.neutrals);
+    if (botLoss) { moveScore = -100 + botLoss.movesLeft; break; }
+  }
+  if (moveScore > bestScore) { bestScore = moveScore; bestMove = m; }
+}
+
+assert(bestScore >= 1000, "bot picks winning move with high score, not 0");
+const chosenOpponentMoves = generateMoves(bestMove.opponent, bestMove.active, bestMove.neutrals);
+assertEq(chosenOpponentMoves.length, 0, "bot's chosen move leaves human with no moves");
+
 // --- Summary ---
 console.log(`\n=== Results ===`);
 console.log(`Passed: ${passed}`);

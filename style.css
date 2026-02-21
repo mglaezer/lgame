@@ -6,7 +6,7 @@ body {
   display: flex;
   justify-content: center;
   min-height: 100vh;
-  padding: 20px;
+  padding: 24px 16px;
 }
 
 #container {
@@ -16,20 +16,45 @@ body {
 }
 
 h1 {
-  font-size: 24px;
-  margin-bottom: 8px;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: #333;
+  margin-bottom: 16px;
 }
 
 #score {
-  font-size: 18px;
-  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 16px;
 }
 
-#status {
-  font-size: 16px;
-  min-height: 24px;
-  margin-bottom: 12px;
-  color: #555;
+.score-side {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.score-label {
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #888;
+}
+
+.score-value {
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.score-human .score-value { color: #e74c3c; }
+.score-bot .score-value { color: #3498db; }
+
+.score-divider {
+  font-size: 20px;
+  color: #bbb;
 }
 
 #board {
@@ -37,32 +62,98 @@ h1 {
   max-width: 400px;
   background: #fff;
   border: 2px solid #333;
+  border-radius: 4px;
   cursor: pointer;
   touch-action: none;
   user-select: none;
 }
 
-#controls {
-  margin-top: 12px;
+#status {
+  font-size: 15px;
+  min-height: 40px;
   display: flex;
-  gap: 8px;
+  align-items: center;
   justify-content: center;
+  margin: 12px 0;
+  padding: 8px 16px;
+  border-radius: 6px;
+  background: #e8e8e8;
+  color: #444;
+  transition: background 0.2s, color 0.2s;
+}
+
+#status.human-turn {
+  background: #fdecea;
+  color: #c0392b;
+}
+
+#status.bot-turn {
+  background: #e8f4fd;
+  color: #2980b9;
+}
+
+#status.win {
+  background: #d5f5e3;
+  color: #27ae60;
+  font-weight: 600;
+}
+
+#status.lose {
+  background: #fdecea;
+  color: #c0392b;
+  font-weight: 600;
+}
+
+#controls {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 20px;
 }
 
 button {
-  padding: 8px 20px;
+  padding: 10px 28px;
   font-size: 15px;
-  border: 1px solid #999;
-  border-radius: 4px;
-  background: #fff;
+  font-weight: 500;
+  border: none;
+  border-radius: 6px;
   cursor: pointer;
-}
-
-button:hover:not(:disabled) {
-  background: #e8e8e8;
+  transition: background 0.15s, opacity 0.15s;
 }
 
 button:disabled {
-  opacity: 0.4;
+  opacity: 0.35;
   cursor: default;
+}
+
+#undo-btn {
+  background: #e0e0e0;
+  color: #444;
+}
+
+#undo-btn:hover:not(:disabled) {
+  background: #d0d0d0;
+}
+
+#done-btn {
+  background: #27ae60;
+  color: #fff;
+}
+
+#done-btn:hover:not(:disabled) {
+  background: #219a52;
+}
+
+#new-game-btn {
+  padding: 8px 20px;
+  font-size: 13px;
+  background: transparent;
+  color: #888;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+#new-game-btn:hover {
+  background: #e8e8e8;
+  color: #555;
 }
