@@ -156,8 +156,10 @@ if (typeof document !== "undefined") {
 
   let game = {};
   let score = { human: 0, bot: 0 };
+  let gameGen = 0;
 
   function newGame() {
+    gameGen++;
     const humanFirst = Math.random() < 0.5;
     game = {
       humanL: humanFirst ? INITIAL_HUMAN_L : INITIAL_BOT_L,
@@ -176,7 +178,8 @@ if (typeof document !== "undefined") {
     render();
     updateStatus();
     if (!humanFirst) {
-      setTimeout(botMove, 500);
+      const gen = gameGen;
+      setTimeout(() => { if (gen === gameGen) botMove(); }, 500);
     }
   }
 
@@ -476,7 +479,8 @@ if (typeof document !== "undefined") {
     game.phase = "botTurn";
     render();
     updateStatus();
-    setTimeout(botMove, 500);
+    const gen = gameGen;
+    setTimeout(() => { if (gen === gameGen) botMove(); }, 500);
   });
 
   newGameBtn.addEventListener("click", newGame);
@@ -592,7 +596,9 @@ if (typeof document !== "undefined") {
     render();
     setStatus("Bot moves L-piece\u2026", "bot-turn");
 
+    const gen = gameGen;
     setTimeout(() => {
+      if (gen !== gameGen) return;
       game.animateBotL = false;
       if (movedNeutral) {
         game.fadingNeutral = removedNeutral;
@@ -600,6 +606,7 @@ if (typeof document !== "undefined") {
         setStatus("Bot moves neutral piece\u2026", "bot-turn");
 
         setTimeout(() => {
+          if (gen !== gameGen) return;
           game.fadingNeutral = null;
           game.neutrals = newNeutrals;
           game.animateNeutral = movedNeutral;
@@ -610,6 +617,7 @@ if (typeof document !== "undefined") {
       }
 
       setTimeout(() => {
+        if (gen !== gameGen) return;
         game.animateNeutral = null;
 
         const humanMoves = generateMoves(game.humanL, game.botL, game.neutrals);

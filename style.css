@@ -142,7 +142,7 @@ h1 {
 
 #status.human-turn {
   background: rgba(231, 76, 60, 0.12);
-  color: #c0392b;
+  color: #e74c3c;
 }
 
 #status.bot-turn {
