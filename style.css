@@ -268,17 +268,19 @@ button:disabled {
     display: none;
   }
 
+  body { padding: 8px; }
+
   #score { margin-bottom: 6px; }
   #difficulty-row { margin-bottom: 10px; }
   #controls { margin-bottom: 10px; }
 
   #board, #status {
-    width: min(100%, calc(100dvh - 300px));
+    width: 100%;
     max-width: none;
   }
 
   #board {
-    height: min(calc(100vw - 32px), calc(100dvh - 300px));
+    height: calc(100vw - 16px);
     max-height: none;
   }
 }
