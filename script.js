@@ -137,6 +137,421 @@ function isLosingPosition(active, opponent, neutrals) {
   return null;
 }
 
+// --- Game UI (browser only) ---
+
+if (typeof document !== "undefined") {
+  const CELL = 100;
+  const svg = document.getElementById("board");
+  const statusEl = document.getElementById("status");
+  const undoBtn = document.getElementById("undo-btn");
+  const doneBtn = document.getElementById("done-btn");
+  const newGameBtn = document.getElementById("new-game-btn");
+  const humanScoreEl = document.getElementById("human-score");
+  const botScoreEl = document.getElementById("bot-score");
+
+  const INITIAL_HUMAN_L = sortCells([[1,0],[1,1],[1,2],[2,0]]);
+  const INITIAL_BOT_L = sortCells([[2,1],[2,2],[2,3],[3,3]]);
+  const INITIAL_NEUTRALS = sortCells([[3,0],[0,3]]);
+
+  let game = {};
+  let score = { human: 0, bot: 0 };
+
+  function newGame() {
+    const humanFirst = Math.random() < 0.5;
+    game = {
+      humanL: INITIAL_HUMAN_L,
+      botL: INITIAL_BOT_L,
+      neutrals: INITIAL_NEUTRALS,
+      currentPlayer: humanFirst ? "human" : "bot",
+      phase: humanFirst ? "placeL" : "botTurn",
+      selectedCells: [],
+      pendingL: null,
+      selectedNeutralIndex: null,
+      pendingNeutrals: null,
+      savedHumanL: null,
+    };
+    undoBtn.disabled = true;
+    doneBtn.disabled = true;
+    render();
+    updateStatus();
+    if (!humanFirst) {
+      setTimeout(botMove, 500);
+    }
+  }
+
+  function cellKey(c, r) { return c * 4 + r; }
+
+  function isValidLPlacement(cells, opponent, neutrals) {
+    if (cells.length !== 4) return false;
+    const sorted = sortCells(cells);
+    const key = sorted.map(p => p.join(",")).join(";");
+    const blocked = new Set([...opponent, ...neutrals].map(p => p[0] * 4 + p[1]));
+    return ALL_L_PLACEMENTS.some(pl => {
+      if (pl.map(p => p.join(",")).join(";") !== key) return false;
+      return !pl.some(p => blocked.has(p[0] * 4 + p[1]));
+    });
+  }
+
+  function cellsEqual(a, b) {
+    if (a.length !== b.length) return false;
+    const sa = sortCells(a);
+    const sb = sortCells(b);
+    return sa.every((p, i) => p[0] === sb[i][0] && p[1] === sb[i][1]);
+  }
+
+  // --- Rendering ---
+
+  function render() {
+    svg.innerHTML = "";
+
+    for (let c = 0; c < BOARD_SIZE; c++) {
+      for (let r = 0; r < BOARD_SIZE; r++) {
+        const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        rect.setAttribute("x", c * CELL);
+        rect.setAttribute("y", r * CELL);
+        rect.setAttribute("width", CELL);
+        rect.setAttribute("height", CELL);
+        rect.setAttribute("fill", "#fff");
+        rect.setAttribute("stroke", "#ccc");
+        rect.setAttribute("stroke-width", "1");
+        svg.appendChild(rect);
+      }
+    }
+
+    const isDragging = game.phase === "placeL" && !game.pendingL && game.selectedCells.length > 0;
+    const showHumanL = game.pendingL || !isDragging;
+    const humanLCells = game.pendingL || game.humanL;
+    const humanLFaded = game.phase === "placeL" && !game.pendingL;
+    if (showHumanL) {
+      for (const [c, r] of humanLCells) {
+        const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        rect.setAttribute("x", c * CELL + 2);
+        rect.setAttribute("y", r * CELL + 2);
+        rect.setAttribute("width", CELL - 4);
+        rect.setAttribute("height", CELL - 4);
+        rect.setAttribute("fill", humanLFaded ? "rgba(231, 76, 60, 0.3)" : "#e74c3c");
+        rect.setAttribute("rx", "4");
+        svg.appendChild(rect);
+      }
+    }
+
+    for (const [c, r] of game.botL) {
+      const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      rect.setAttribute("x", c * CELL + 2);
+      rect.setAttribute("y", r * CELL + 2);
+      rect.setAttribute("width", CELL - 4);
+      rect.setAttribute("height", CELL - 4);
+      rect.setAttribute("fill", "#3498db");
+      rect.setAttribute("rx", "4");
+      svg.appendChild(rect);
+    }
+
+    if (game.phase === "placeL" && !game.pendingL) {
+      for (const [c, r] of game.selectedCells) {
+        const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        rect.setAttribute("x", c * CELL + 2);
+        rect.setAttribute("y", r * CELL + 2);
+        rect.setAttribute("width", CELL - 4);
+        rect.setAttribute("height", CELL - 4);
+        rect.setAttribute("fill", "rgba(231, 76, 60, 0.4)");
+        rect.setAttribute("rx", "4");
+        svg.appendChild(rect);
+      }
+    }
+
+    const currentNeutrals = game.pendingNeutrals || game.neutrals;
+    for (let i = 0; i < currentNeutrals.length; i++) {
+      const [c, r] = currentNeutrals[i];
+      const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      circle.setAttribute("cx", c * CELL + CELL / 2);
+      circle.setAttribute("cy", r * CELL + CELL / 2);
+      circle.setAttribute("r", CELL / 3);
+      circle.setAttribute("fill", "#333");
+      if (game.phase === "moveNeutral" && game.selectedNeutralIndex === i) {
+        circle.setAttribute("stroke", "#f1c40f");
+        circle.setAttribute("stroke-width", "4");
+      }
+      svg.appendChild(circle);
+    }
+  }
+
+  function updateStatus() {
+    if (game.phase === "gameOver") return;
+    if (game.currentPlayer === "bot") {
+      statusEl.textContent = "Bot is thinking...";
+    } else if (game.phase === "placeL") {
+      statusEl.textContent = "Drag to place your L-piece";
+    } else if (game.phase === "moveNeutral") {
+      if (game.selectedNeutralIndex !== null) {
+        statusEl.textContent = "Click an empty cell, or click Done";
+      } else {
+        statusEl.textContent = "Click a neutral piece to move it, or click Done";
+      }
+    }
+  }
+
+  // --- Input handling ---
+
+  let dragging = false;
+
+  function getCellFromEvent(e) {
+    const rect = svg.getBoundingClientRect();
+    const scaleX = 400 / rect.width;
+    const scaleY = 400 / rect.height;
+    let clientX, clientY;
+    if (e.touches) {
+      clientX = e.touches[0].clientX;
+      clientY = e.touches[0].clientY;
+    } else {
+      clientX = e.clientX;
+      clientY = e.clientY;
+    }
+    const x = (clientX - rect.left) * scaleX;
+    const y = (clientY - rect.top) * scaleY;
+    const c = Math.floor(x / CELL);
+    const r = Math.floor(y / CELL);
+    if (c < 0 || c >= BOARD_SIZE || r < 0 || r >= BOARD_SIZE) return null;
+    return [c, r];
+  }
+
+  function isBlocked(c, r) {
+    const neutrals = game.pendingNeutrals || game.neutrals;
+    return game.botL.some(p => p[0] === c && p[1] === r) ||
+      neutrals.some(p => p[0] === c && p[1] === r);
+  }
+
+  function addSelectedCell(c, r) {
+    if (game.selectedCells.some(p => p[0] === c && p[1] === r)) return;
+    if (isBlocked(c, r)) return;
+    if (game.selectedCells.length >= 4) return;
+    game.selectedCells.push([c, r]);
+    render();
+  }
+
+  function onPointerDown(e) {
+    if (game.currentPlayer !== "human") return;
+    e.preventDefault();
+    const cell = getCellFromEvent(e);
+    if (!cell) return;
+
+    if (game.phase === "placeL" && !game.pendingL) {
+      dragging = true;
+      game.selectedCells = [];
+      addSelectedCell(cell[0], cell[1]);
+    } else if (game.phase === "moveNeutral") {
+      handleNeutralClick(cell[0], cell[1]);
+    }
+  }
+
+  function onPointerMove(e) {
+    if (!dragging) return;
+    e.preventDefault();
+    const cell = getCellFromEvent(e);
+    if (!cell) return;
+    addSelectedCell(cell[0], cell[1]);
+  }
+
+  function onPointerUp(e) {
+    if (!dragging) return;
+    dragging = false;
+    e.preventDefault();
+
+    if (game.selectedCells.length === 4) {
+      const sorted = sortCells(game.selectedCells);
+      if (isValidLPlacement(sorted, game.botL, game.neutrals) &&
+          !cellsEqual(sorted, game.humanL)) {
+        game.savedHumanL = game.humanL;
+        game.pendingL = sorted;
+        game.phase = "moveNeutral";
+        game.selectedNeutralIndex = null;
+        game.pendingNeutrals = null;
+        undoBtn.disabled = false;
+        doneBtn.disabled = false;
+        render();
+        updateStatus();
+        return;
+      }
+    }
+    game.selectedCells = [];
+    render();
+  }
+
+  function handleNeutralClick(c, r) {
+    const neutrals = game.pendingNeutrals || game.neutrals;
+
+    if (game.selectedNeutralIndex === null) {
+      const idx = neutrals.findIndex(p => p[0] === c && p[1] === r);
+      if (idx !== -1) {
+        game.selectedNeutralIndex = idx;
+        render();
+        updateStatus();
+      }
+      return;
+    }
+
+    const humanL = game.pendingL || game.humanL;
+    if (humanL.some(p => p[0] === c && p[1] === r)) return;
+    if (game.botL.some(p => p[0] === c && p[1] === r)) return;
+    const otherIdx = 1 - game.selectedNeutralIndex;
+    if (neutrals[otherIdx][0] === c && neutrals[otherIdx][1] === r) return;
+    if (neutrals[game.selectedNeutralIndex][0] === c &&
+        neutrals[game.selectedNeutralIndex][1] === r) {
+      game.selectedNeutralIndex = null;
+      render();
+      updateStatus();
+      return;
+    }
+
+    const newNeutrals = neutrals.slice();
+    newNeutrals[game.selectedNeutralIndex] = [c, r];
+    game.pendingNeutrals = sortCells(newNeutrals);
+    game.selectedNeutralIndex = null;
+    render();
+    updateStatus();
+  }
+
+  // --- Buttons ---
+
+  undoBtn.addEventListener("click", () => {
+    if (game.savedHumanL) {
+      game.phase = "placeL";
+      game.pendingL = null;
+      game.pendingNeutrals = null;
+      game.selectedCells = [];
+      game.selectedNeutralIndex = null;
+      undoBtn.disabled = true;
+      doneBtn.disabled = true;
+      render();
+      updateStatus();
+    }
+  });
+
+  doneBtn.addEventListener("click", () => {
+    if (!game.pendingL) return;
+
+    const finalNeutrals = game.pendingNeutrals || game.neutrals;
+    const legalMoves = generateMoves(game.humanL, game.botL, game.neutrals);
+    const isLegal = legalMoves.some(m =>
+      cellsEqual(m.active, game.pendingL) && cellsEqual(m.neutrals, finalNeutrals)
+    );
+
+    if (!isLegal) {
+      statusEl.textContent = "Illegal move! Try again.";
+      return;
+    }
+
+    game.humanL = game.pendingL;
+    game.neutrals = finalNeutrals;
+    game.pendingL = null;
+    game.pendingNeutrals = null;
+    game.savedHumanL = null;
+    game.selectedCells = [];
+    game.selectedNeutralIndex = null;
+    undoBtn.disabled = true;
+    doneBtn.disabled = true;
+
+    const botMoves = generateMoves(game.botL, game.humanL, game.neutrals);
+    if (botMoves.length === 0) {
+      game.phase = "gameOver";
+      score.human++;
+      humanScoreEl.textContent = score.human;
+      statusEl.textContent = "You win!";
+      render();
+      return;
+    }
+
+    game.currentPlayer = "bot";
+    game.phase = "botTurn";
+    render();
+    updateStatus();
+    setTimeout(botMove, 500);
+  });
+
+  newGameBtn.addEventListener("click", newGame);
+
+  // --- Bot AI ---
+
+  function botMove() {
+    const moves = generateMoves(game.botL, game.humanL, game.neutrals);
+    if (moves.length === 0) {
+      game.phase = "gameOver";
+      score.human++;
+      humanScoreEl.textContent = score.human;
+      statusEl.textContent = "You win!";
+      render();
+      return;
+    }
+
+    let bestMove = null;
+    let bestScore = -Infinity;
+
+    for (const m of moves) {
+      const loss = isLosingPosition(m.opponent, m.active, m.neutrals);
+      if (loss) {
+        if (bestScore < 1000 - loss.movesLeft) {
+          bestScore = 1000 - loss.movesLeft;
+          bestMove = m;
+        }
+        continue;
+      }
+
+      const humanResponses = generateMoves(m.opponent, m.active, m.neutrals);
+      let safe = true;
+      let worstHumanDepth = Infinity;
+      for (const hr of humanResponses) {
+        const botLoss = isLosingPosition(hr.opponent, hr.active, hr.neutrals);
+        if (botLoss) {
+          safe = false;
+          worstHumanDepth = Math.min(worstHumanDepth, botLoss.movesLeft);
+        }
+      }
+
+      let moveScore;
+      if (safe) {
+        moveScore = 0;
+      } else {
+        moveScore = -100 + worstHumanDepth;
+      }
+
+      if (moveScore > bestScore) {
+        bestScore = moveScore;
+        bestMove = m;
+      } else if (moveScore === bestScore && Math.random() < 0.3) {
+        bestMove = m;
+      }
+    }
+
+    game.botL = bestMove.active;
+    game.neutrals = bestMove.neutrals;
+
+    const humanMoves = generateMoves(game.humanL, game.botL, game.neutrals);
+    if (humanMoves.length === 0) {
+      game.phase = "gameOver";
+      score.bot++;
+      botScoreEl.textContent = score.bot;
+      statusEl.textContent = "Bot wins!";
+      render();
+      return;
+    }
+
+    game.currentPlayer = "human";
+    game.phase = "placeL";
+    render();
+    updateStatus();
+  }
+
+  // --- Event listeners ---
+
+  svg.addEventListener("pointerdown", onPointerDown);
+  svg.addEventListener("pointermove", onPointerMove);
+  svg.addEventListener("pointerup", onPointerUp);
+  svg.addEventListener("pointerleave", (e) => {
+    if (dragging) onPointerUp(e);
+  });
+
+  newGame();
+}
+
 if (typeof module !== "undefined") {
   module.exports = {
     BOARD_SIZE, SYMMETRIES, LOSING_POSITIONS, ALL_L_PLACEMENTS,
