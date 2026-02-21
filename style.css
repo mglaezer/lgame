@@ -174,50 +174,60 @@ h1 {
 
 button {
   font-family: inherit;
-  padding: 8px 24px;
+  height: 40px;
+  padding: 0 24px;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
+  letter-spacing: 0.5px;
   border: none;
-  border-radius: 6px;
+  border-radius: 4px;
   cursor: pointer;
-  transition: background 0.15s, opacity 0.15s;
+  transition: all 0.2s ease;
+}
+
+button:active:not(:disabled) {
+  transform: scale(0.96);
 }
 
 button:disabled {
-  opacity: 0.3;
+  opacity: 0.25;
   cursor: default;
 }
 
 #undo-btn {
-  background: #e0e0e0;
+  background: #e8e8e8;
   color: #555;
 }
 
 #undo-btn:hover:not(:disabled) {
-  background: #d0d0d0;
+  background: #ddd;
 }
 
 #done-btn {
   background: #27ae60;
   color: #fff;
+  box-shadow: 0 2px 6px rgba(39,174,96,0.3);
 }
 
 #done-btn:hover:not(:disabled) {
-  background: #219a52;
+  background: #2ecc71;
+  box-shadow: 0 4px 12px rgba(39,174,96,0.35);
 }
 
 #new-game-btn {
-  padding: 6px 16px;
-  font-size: 13px;
-  background: transparent;
-  color: #aaa;
-  border: 1px solid #d0d0d0;
+  height: 40px;
+  padding: 0 24px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  background: #e8e8e8;
+  color: #555;
+  border: none;
   border-radius: 4px;
 }
 
 #new-game-btn:hover {
-  background: #e8e8e8;
-  color: #666;
+  background: #ddd;
 }
 
 .bot-moved {
