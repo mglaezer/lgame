@@ -204,6 +204,23 @@ button:disabled {
   cursor: default;
 }
 
+#undo-btn {
+  background: transparent;
+  color: #555;
+  border: 1px solid #bbb;
+}
+
+#undo-btn:hover:not(:disabled) {
+  background: #e8e8e8;
+  color: #333;
+}
+
+#undo-btn:disabled {
+  background: transparent;
+  border-color: #ddd;
+  color: #ccc;
+}
+
 #new-game-btn {
   background: transparent;
   color: #222;
