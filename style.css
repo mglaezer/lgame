@@ -63,35 +63,46 @@ h1 {
 
 #difficulty-row {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   justify-content: center;
   align-items: center;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
 }
 
 #difficulty-row label {
-  font-size: 12px;
-  font-weight: 500;
+  font-size: 14px;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: #999;
+  letter-spacing: 1.5px;
+  color: #888;
 }
 
 #difficulty {
-  padding: 4px 8px;
-  font-size: 12px;
+  font-family: inherit;
+  padding: 6px 30px 6px 12px;
+  font-size: 14px;
   font-weight: 500;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  background: #fff;
-  color: #666;
+  border: none;
+  border-bottom: 2px solid #ddd;
+  border-radius: 0;
+  background: transparent;
+  color: #555;
   cursor: pointer;
   outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7'%3E%3Cpath d='M0 0l6 7 6-7z' fill='%23bbb'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 6px center;
 }
 
 #difficulty:hover {
-  border-color: #aaa;
-  color: #444;
+  border-color: #999;
+  color: #333;
+}
+
+#difficulty:focus {
+  border-color: #3498db;
 }
 
 #board {
@@ -162,6 +173,7 @@ h1 {
 }
 
 button {
+  font-family: inherit;
   padding: 8px 24px;
   font-size: 14px;
   font-weight: 500;
@@ -196,7 +208,7 @@ button:disabled {
 
 #new-game-btn {
   padding: 6px 16px;
-  font-size: 12px;
+  font-size: 13px;
   background: transparent;
   color: #aaa;
   border: 1px solid #d0d0d0;
