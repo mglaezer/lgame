@@ -229,7 +229,7 @@ if (typeof document !== "undefined") {
         rect.setAttribute("y", r * CELL + 2);
         rect.setAttribute("width", CELL - 4);
         rect.setAttribute("height", CELL - 4);
-        rect.setAttribute("fill", humanLFaded ? "rgba(231, 76, 60, 0.3)" : "#e74c3c");
+        rect.setAttribute("fill", humanLFaded ? "rgba(231, 76, 60, 0.5)" : "#e74c3c");
         rect.setAttribute("rx", "4");
         svg.appendChild(rect);
       }
@@ -476,6 +476,23 @@ if (typeof document !== "undefined") {
 
   // --- Bot AI ---
 
+  function touchesCorner(lPiece) {
+    return lPiece.some(([c, r]) =>
+      (c === 0 || c === 3) && (r === 0 || r === 3)
+    );
+  }
+
+  function weightedPick(candidates) {
+    const weights = candidates.map(c => touchesCorner(c.move.active) ? 1 : 2);
+    const total = weights.reduce((a, b) => a + b, 0);
+    let r = Math.random() * total;
+    for (let i = 0; i < candidates.length; i++) {
+      r -= weights[i];
+      if (r <= 0) return candidates[i];
+    }
+    return candidates[candidates.length - 1];
+  }
+
   function botMove() {
     const moves = generateMoves(game.botL, game.humanL, game.neutrals);
     if (moves.length === 0) {
@@ -487,24 +504,19 @@ if (typeof document !== "undefined") {
       return;
     }
 
-    let bestMove = null;
-    let bestScore = -Infinity;
+    const scored = [];
 
     for (const m of moves) {
       const humanResponses = generateMoves(m.opponent, m.active, m.neutrals);
 
       if (humanResponses.length === 0) {
-        bestMove = m;
-        bestScore = 10000;
-        break;
+        scored.push({ move: m, score: 10000 });
+        continue;
       }
 
       const loss = isLosingPosition(m.opponent, m.active, m.neutrals);
       if (loss) {
-        if (bestScore < 1000 - loss.movesLeft) {
-          bestScore = 1000 - loss.movesLeft;
-          bestMove = m;
-        }
+        scored.push({ move: m, score: 1000 - loss.movesLeft });
         continue;
       }
 
@@ -518,20 +530,12 @@ if (typeof document !== "undefined") {
         }
       }
 
-      let moveScore;
-      if (safe) {
-        moveScore = 0;
-      } else {
-        moveScore = -100 + worstHumanDepth;
-      }
-
-      if (moveScore > bestScore) {
-        bestScore = moveScore;
-        bestMove = m;
-      } else if (moveScore === bestScore && Math.random() < 0.3) {
-        bestMove = m;
-      }
+      scored.push({ move: m, score: safe ? 0 : -100 + worstHumanDepth });
     }
+
+    const bestScore = Math.max(...scored.map(s => s.score));
+    const candidates = scored.filter(s => s.score === bestScore);
+    const bestMove = weightedPick(candidates).move;
 
     game.botL = bestMove.active;
     game.neutrals = bestMove.neutrals;

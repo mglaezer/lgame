@@ -83,7 +83,7 @@ h1 {
 }
 
 #status.human-turn {
-  background: #fdecea;
+  background: #fdd;
   color: #c0392b;
 }
 
@@ -99,7 +99,7 @@ h1 {
 }
 
 #status.lose {
-  background: #fdecea;
+  background: #fdd;
   color: #c0392b;
   font-weight: 600;
 }
