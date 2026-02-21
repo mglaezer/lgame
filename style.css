@@ -223,6 +223,19 @@ button:disabled {
   color: #ccc;
 }
 
+#wiki-link {
+  display: inline-block;
+  margin-top: 12px;
+  font-size: 13px;
+  color: #999;
+  text-decoration: none;
+}
+
+#wiki-link:hover {
+  color: #555;
+  text-decoration: underline;
+}
+
 .bot-moved {
   animation: fade-in 1.0s ease-in-out;
 }
