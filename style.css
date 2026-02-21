@@ -154,6 +154,7 @@ h1 {
   background: #d5f5e3;
   color: #27ae60;
   font-weight: 600;
+  animation: flash-green 0.6s ease-in-out 3;
 }
 
 #status.lose {
@@ -161,6 +162,11 @@ h1 {
   color: #2471a3;
   font-weight: 600;
   animation: flash-blue 0.6s ease-in-out 3;
+}
+
+@keyframes flash-green {
+  0%, 100% { background: #d5f5e3; }
+  50% { background: #27ae60; color: #fff; }
 }
 
 @keyframes flash-blue {
