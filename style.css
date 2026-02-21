@@ -163,3 +163,24 @@ button:disabled {
   background: #e8e8e8;
   color: #555;
 }
+
+.bot-moved {
+  animation: pulse-blue 1.6s ease-in-out;
+}
+
+.neutral-moved {
+  animation: pulse-dark 1.6s ease-in-out;
+}
+
+@keyframes pulse-blue {
+  0% { opacity: 0; }
+  40% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+@keyframes pulse-dark {
+  0% { opacity: 0; r: 0; }
+  30% { opacity: 1; }
+  60% { opacity: 0.5; }
+  100% { opacity: 1; }
+}

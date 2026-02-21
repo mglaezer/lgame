@@ -243,6 +243,7 @@ if (typeof document !== "undefined") {
       rect.setAttribute("height", CELL - 4);
       rect.setAttribute("fill", "#3498db");
       rect.setAttribute("rx", "4");
+      if (game.animateBotL) rect.classList.add("bot-moved");
       svg.appendChild(rect);
     }
 
@@ -270,6 +271,9 @@ if (typeof document !== "undefined") {
       if (game.phase === "moveNeutral" && game.selectedNeutralIndex === i) {
         circle.setAttribute("stroke", "#f1c40f");
         circle.setAttribute("stroke-width", "4");
+      }
+      if (game.animateNeutral && game.animateNeutral[0] === c && game.animateNeutral[1] === r) {
+        circle.classList.add("neutral-moved");
       }
       svg.appendChild(circle);
     }
@@ -537,23 +541,54 @@ if (typeof document !== "undefined") {
     const candidates = scored.filter(s => s.score === bestScore);
     const bestMove = weightedPick(candidates).move;
 
-    game.botL = bestMove.active;
-    game.neutrals = bestMove.neutrals;
+    const oldNeutrals = game.neutrals;
+    const newBotL = bestMove.active;
+    const newNeutrals = bestMove.neutrals;
 
-    const humanMoves = generateMoves(game.humanL, game.botL, game.neutrals);
-    if (humanMoves.length === 0) {
-      game.phase = "gameOver";
-      score.bot++;
-      botScoreEl.textContent = score.bot;
-      setStatus("Bot wins!", "lose");
-      render();
-      return;
+    let movedNeutral = null;
+    for (const n of newNeutrals) {
+      if (!oldNeutrals.some(o => o[0] === n[0] && o[1] === n[1])) {
+        movedNeutral = n;
+        break;
+      }
     }
 
-    game.currentPlayer = "human";
-    game.phase = "placeL";
+    game.botL = newBotL;
+    game.animateBotL = true;
+    game.animateNeutral = null;
     render();
-    updateStatus();
+    setStatus("Bot moves L-piece\u2026", "bot-turn");
+
+    setTimeout(() => {
+      game.animateBotL = false;
+      game.neutrals = newNeutrals;
+      if (movedNeutral) {
+        game.animateNeutral = movedNeutral;
+        render();
+        setStatus("Bot moves neutral piece\u2026", "bot-turn");
+      } else {
+        render();
+      }
+
+      setTimeout(() => {
+        game.animateNeutral = null;
+
+        const humanMoves = generateMoves(game.humanL, game.botL, game.neutrals);
+        if (humanMoves.length === 0) {
+          game.phase = "gameOver";
+          score.bot++;
+          botScoreEl.textContent = score.bot;
+          setStatus("Bot wins!", "lose");
+          render();
+          return;
+        }
+
+        game.currentPlayer = "human";
+        game.phase = "placeL";
+        render();
+        updateStatus();
+      }, movedNeutral ? 1200 : 400);
+    }, 1200);
   }
 
   // --- Event listeners ---
