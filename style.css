@@ -223,18 +223,10 @@ button:disabled {
   color: #ccc;
 }
 
-#bottom-row {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-  align-items: center;
-}
-
 #wiki-link {
-  font-family: inherit;
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
+  display: block;
+  margin-bottom: 10px;
+  font-size: 13px;
   color: #999;
   text-decoration: none;
 }
