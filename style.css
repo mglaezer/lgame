@@ -172,22 +172,32 @@ button:disabled {
 }
 
 .bot-moved {
-  animation: pulse-blue 1.6s ease-in-out;
+  animation: fade-in 1.0s ease-in-out;
 }
 
 .neutral-moved {
-  animation: pulse-dark 1.6s ease-in-out;
+  animation: fade-in 1.0s ease-in-out;
 }
 
-@keyframes pulse-blue {
+.neutral-fading {
+  animation: fade-out 0.5s ease-in-out forwards;
+}
+
+.human-l-fading {
+  animation: fade-to-pale 0.8s ease-in-out forwards;
+}
+
+@keyframes fade-in {
   0% { opacity: 0; }
-  40% { opacity: 0.5; }
   100% { opacity: 1; }
 }
 
-@keyframes pulse-dark {
-  0% { opacity: 0; r: 0; }
-  30% { opacity: 1; }
-  60% { opacity: 0.5; }
-  100% { opacity: 1; }
+@keyframes fade-out {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@keyframes fade-to-pale {
+  0% { opacity: 1; }
+  100% { opacity: 0.65; }
 }

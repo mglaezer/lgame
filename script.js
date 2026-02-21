@@ -229,8 +229,9 @@ if (typeof document !== "undefined") {
         rect.setAttribute("y", r * CELL + 2);
         rect.setAttribute("width", CELL - 4);
         rect.setAttribute("height", CELL - 4);
-        rect.setAttribute("fill", humanLFaded ? "rgba(231, 76, 60, 0.65)" : "#e74c3c");
+        rect.setAttribute("fill", "#e74c3c");
         rect.setAttribute("rx", "4");
+        if (humanLFaded) rect.classList.add("human-l-fading");
         svg.appendChild(rect);
       }
     }
@@ -274,6 +275,9 @@ if (typeof document !== "undefined") {
       }
       if (game.animateNeutral && game.animateNeutral[0] === c && game.animateNeutral[1] === r) {
         circle.classList.add("neutral-moved");
+      }
+      if (game.fadingNeutral && game.fadingNeutral[0] === c && game.fadingNeutral[1] === r) {
+        circle.classList.add("neutral-fading");
       }
       svg.appendChild(circle);
     }
@@ -546,9 +550,16 @@ if (typeof document !== "undefined") {
     const newNeutrals = bestMove.neutrals;
 
     let movedNeutral = null;
+    let removedNeutral = null;
     for (const n of newNeutrals) {
       if (!oldNeutrals.some(o => o[0] === n[0] && o[1] === n[1])) {
         movedNeutral = n;
+        break;
+      }
+    }
+    for (const o of oldNeutrals) {
+      if (!newNeutrals.some(n => n[0] === o[0] && n[1] === o[1])) {
+        removedNeutral = o;
         break;
       }
     }
@@ -561,11 +572,17 @@ if (typeof document !== "undefined") {
 
     setTimeout(() => {
       game.animateBotL = false;
-      game.neutrals = newNeutrals;
       if (movedNeutral) {
-        game.animateNeutral = movedNeutral;
+        game.fadingNeutral = removedNeutral;
         render();
         setStatus("Bot moves neutral piece\u2026", "bot-turn");
+
+        setTimeout(() => {
+          game.fadingNeutral = null;
+          game.neutrals = newNeutrals;
+          game.animateNeutral = movedNeutral;
+          render();
+        }, 600);
       } else {
         render();
       }
