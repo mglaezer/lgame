@@ -4,12 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>L Game</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='15' y='10' width='30' height='80' rx='4' fill='%23e74c3c'/><rect x='15' y='60' width='60' height='30' rx='4' fill='%23e74c3c'/></svg>">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div id="container">
     <h1>L-Game</h1>
-    <a id="wiki-link" href="https://en.wikipedia.org/wiki/L_game" target="_blank">Rules</a>
     <div id="score">
       <div class="score-side score-human">
         <span class="score-label">You</span>
@@ -30,13 +30,14 @@
         <option value="world-class">World Class</option>
       </select>
     </div>
-    <svg id="board" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg"></svg>
+    <svg id="board" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="L-Game board"></svg>
     <div id="status">Loading...</div>
     <div id="controls">
       <button id="undo-btn" disabled>Undo</button>
       <button id="done-btn" disabled>Done</button>
     </div>
     <button id="new-game-btn">New Game</button>
+    <a id="wiki-link" href="https://en.wikipedia.org/wiki/L_game" target="_blank">Rules</a>
   </div>
   <script src="script.js"></script>
 </body>
